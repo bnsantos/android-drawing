@@ -55,6 +55,7 @@
             android:layout_height="@dimen/btn_dimension"
             android:contentDescription="@string/brush"
             android:scaleType="fitXY"
+            android:onClick="saveImage"
             android:src="@drawable/save" />
     </LinearLayout>
 
