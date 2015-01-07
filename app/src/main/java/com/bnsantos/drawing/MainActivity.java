@@ -58,5 +58,11 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    public void erase(View v){
+        mView.setErase(true);
+    }
 
+    public void draw(View v){
+        mView.setErase(false);
+    }
 }

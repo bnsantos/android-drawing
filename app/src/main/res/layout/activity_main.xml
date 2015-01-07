@@ -36,6 +36,7 @@
             android:layout_height="@dimen/btn_dimension"
             android:contentDescription="@string/brush"
             android:scaleType="fitXY"
+            android:onClick="draw"
             android:src="@drawable/draw" />
 
         <ImageButton
@@ -44,6 +45,7 @@
             android:layout_height="@dimen/btn_dimension"
             android:contentDescription="@string/brush"
             android:scaleType="fitXY"
+            android:onClick="erase"
             android:src="@drawable/eraser" />
 
         <ImageButton
