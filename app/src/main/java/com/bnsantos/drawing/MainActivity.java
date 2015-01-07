@@ -4,14 +4,18 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 
 public class MainActivity extends ActionBarActivity {
+    private DrawingView mView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mView = (DrawingView) findViewById(R.id.drawing);
     }
 
 
@@ -36,4 +40,10 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void setDrawerBackground(View v){
+        //TODO option to select any picture from gallery, also use picasso to avoid out of memmory
+        mView.setBackgroundResource(R.drawable.monalisa);
+    }
+
 }
