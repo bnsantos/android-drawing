@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="light_gray">#FFCCCCCC</color>
+    <!--Palette colors-->
+    <color name="black">#FF000000</color>
+    <color name="gray">#FF787878</color>
+    <color name="pink">#FFFF6666</color>
+    <color name="purple">#FF990099</color>
+    <color name="blue">#FF0000FF</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="brown">#FF660000</color>
+    <color name="red">#FFFF0000</color>
+    <color name="orange">#FFFF6600</color>
+    <color name="yellow">#FFFFCC00</color>
+    <color name="green">#FF009900</color>
+    <color name="light_green">#FF009999</color>
+</resources>
