@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 
 
 public class MainActivity extends ActionBarActivity {
     private DrawingView mView;
+    private ImageButton mCurrentColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,6 +18,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         mView = (DrawingView) findViewById(R.id.drawing);
+        mCurrentColor = (ImageButton) findViewById(R.id.paint_black);
     }
 
 
@@ -45,5 +48,15 @@ public class MainActivity extends ActionBarActivity {
         //TODO option to select any picture from gallery, also use picasso to avoid out of memmory
         mView.setBackgroundResource(R.drawable.monalisa);
     }
+
+    public void paintClicked(View v){
+        if(!v.getTag().equals(mCurrentColor.getTag())){
+            mCurrentColor.setImageResource(R.drawable.paint);
+            mCurrentColor = (ImageButton) v;
+            mCurrentColor.setImageResource(R.drawable.paint_pressed);
+            mView.setColor(mCurrentColor.getTag().toString());
+        }
+    }
+
 
 }
