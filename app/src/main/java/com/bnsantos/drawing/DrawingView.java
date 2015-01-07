@@ -94,4 +94,8 @@ public class DrawingView extends View {
         else mDrawPaint.setXfermode(null);
     }
 
+    public void newDrawing(){
+        mDrawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        invalidate();
+    }
 }

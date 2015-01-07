@@ -19,6 +19,7 @@
             android:layout_height="@dimen/btn_dimension"
             android:contentDescription="@string/start_new"
             android:scaleType="fitXY"
+            android:onClick="newDrawing"
             android:src="@drawable/new_btn" />
 
         <ImageButton

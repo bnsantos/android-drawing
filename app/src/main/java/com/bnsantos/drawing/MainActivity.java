@@ -65,4 +65,9 @@ public class MainActivity extends ActionBarActivity {
     public void draw(View v){
         mView.setErase(false);
     }
+
+    public void newDrawing(View v){
+        //TODO confirmation dialog
+        mView.newDrawing();
+    }
 }
