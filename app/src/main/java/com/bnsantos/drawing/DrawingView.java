@@ -55,9 +55,9 @@ public class DrawingView extends ImageView {
 
   @Override
   protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
     canvas.drawBitmap(mCanvasBitmap, 0, 0, mCanvasPaint);
     canvas.drawPath(mPath, mDrawPaint);
-    super.onDraw(canvas);
   }
 
   @Override

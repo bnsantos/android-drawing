@@ -1,12 +1,16 @@
 package com.bnsantos.drawing;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,11 +19,21 @@ import android.widget.Toast;
 
 import com.bnsantos.drawing.databinding.ActivityDrawingBinding;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 @SuppressWarnings({"UnusedAssignment", "ResourceAsColor", "ResourceType"})
 public class DrawingActivity extends AppCompatActivity implements View.OnClickListener {
+  private final String TAG = DrawingActivity.class.getSimpleName();
   private static final String TAG_COLOR = "color";
   private static final String TAG_WIDTH = "width";
   public static final String SEPARATOR = ":";
+  public static final String FILE_DATE_FORMAT = "yyyyMMdd-HHmmss";
 
   private ActivityDrawingBinding mBinding;
 
@@ -53,6 +67,7 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
 
     if(getIntent()!=null&&getIntent().getData()!=null){
       Uri uri = getIntent().getData();
+      mBinding.drawing.setImageURI(uri);
       //TODO uri
     }
 
@@ -91,7 +106,7 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
   }
 
   private void confirm() {
-    Toast.makeText(DrawingActivity.this, "TODO confirm", Toast.LENGTH_SHORT).show();
+    saveImage();
   }
 
   private void undo() {
@@ -179,6 +194,51 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
   private void updateStrokeOptionsUi() {
     mBinding.strokeOptions.removeAllViews();
     mBinding.strokeOptions.addView(roundImageView(mCurrentStrokeColor, null), generateParams(getResources().getDimensionPixelSize(mCurrentStrokeWidth), 0, 0, 0, 0));
+  }
+
+  private void saveImage(){
+    mBinding.drawing.setDrawingCacheEnabled(true);
+    mBinding.drawing.invalidate();
+
+    File drawingFolder = createDrawingFolder();
+    File file = new File(drawingFolder, "IMG-" + new SimpleDateFormat(FILE_DATE_FORMAT, Locale.getDefault()).format(new Date()) + ".jpg");
+    OutputStream fOut = null;
+
+    try {
+      fOut = new FileOutputStream(file);
+    } catch (Exception e) {
+      Log.e(TAG, e.getCause() + e.getMessage());
+      Toast.makeText(DrawingActivity.this, "Error", Toast.LENGTH_SHORT).show();
+      return;
+    }
+
+
+    mBinding.drawing.getDrawingCache().compress(Bitmap.CompressFormat.JPEG, 75, fOut);
+
+    try {
+      fOut.flush();
+      fOut.close();
+    } catch (IOException e) {
+      Log.e(TAG, e.getCause() + e.getMessage());
+      Toast.makeText(DrawingActivity.this, "Error 2", Toast.LENGTH_SHORT).show();
+    }
+
+    finish();
+
+    Intent shareIntent = new Intent();
+    shareIntent.setAction(Intent.ACTION_SEND);
+    shareIntent.putExtra(Intent.EXTRA_STREAM,Uri.fromFile(file));
+    shareIntent.setType("image/png");
+    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    startActivity(Intent.createChooser(shareIntent, "Share image"));
+  }
+
+  private File createDrawingFolder() {
+    File mediaFolder = Environment.getExternalStoragePublicDirectory("SimpleDrawing");
+    if (!mediaFolder.exists()) {
+      Log.i(TAG, "Creating [" + mediaFolder.getAbsolutePath() + "] folders " + mediaFolder.mkdirs());
+    }
+    return mediaFolder;
   }
 
   /*public void setDrawerBackground(View v){

@@ -10,7 +10,8 @@
     <com.bnsantos.drawing.DrawingView
       android:id="@+id/drawing"
       android:layout_width="match_parent"
-      android:layout_height="match_parent" />
+      android:layout_height="match_parent"
+      android:scaleType="fitXY"/>
 
     <android.support.v7.widget.Toolbar
       android:id="@+id/toolbar"
