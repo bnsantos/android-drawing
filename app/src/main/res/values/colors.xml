@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="light_gray">#FFCCCCCC</color>
-    <!--Palette colors-->
-    <color name="black">#FF000000</color>
-    <color name="gray">#FF787878</color>
-    <color name="pink">#FFFF6666</color>
-    <color name="purple">#FF990099</color>
-    <color name="blue">#FF0000FF</color>
-    <color name="white">#FFFFFFFF</color>
+  <color name="light_gray">#FFCCCCCC</color>
+  <!--Palette colors-->
+  <color name="black">#FF000000</color>
+  <color name="white">#FFFFFFFF</color>
+  <color name="pink">#fd0f69</color>
+  <color name="blue">#1c81ff</color>
+  <color name="green">#00e900</color>
+  <color name="yellow">#fff603</color>
+  <color name="orange">#ff8a19</color>
+  <color name="red">#fe0000</color>
+  <color name="gray_transparent">#40ffffff</color>
 
-    <color name="brown">#FF660000</color>
-    <color name="red">#FFFF0000</color>
-    <color name="orange">#FFFF6600</color>
-    <color name="yellow">#FFFFCC00</color>
-    <color name="green">#FF009900</color>
-    <color name="light_green">#FF009999</color>
+  <color name="transparent_yellow">#80fcbe32</color>
 </resources>
