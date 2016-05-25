@@ -1,28 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">SimpleDrawing</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+  <string name="app_name">SimpleDrawing</string>
+  <string name="hello_world">Hello world!</string>
+  <string name="action_settings">Settings</string>
 
-    <string name="start_new">New</string>
-    <string name="brush">Brush</string>
-    <string name="erase">Erase</string>
-    <string name="save">Save</string>
-    <string name="paint">Paint</string>
+  <string name="start_new">New</string>
+  <string name="brush">Brush</string>
+  <string name="erase">Erase</string>
+  <string name="save">Save</string>
+  <string name="paint">Paint</string>
 
-    <!--Color Pallete-->
-    <string name="black">#FF000000</string>
-    <string name="gray">#FF787878</string>
-    <string name="white">#FF787878</string>
-    <string name="pink">#FFFF6666</string>
-    <string name="purple">#FF990099</string>
-    <string name="blue">#FF0000FF</string>
+  <!--Color Pallete-->
+  <string name="black">#FF000000</string>
+  <string name="gray">#FF787878</string>
+  <string name="white">#FF787878</string>
+  <string name="pink">#FFFF6666</string>
+  <string name="purple">#FF990099</string>
+  <string name="blue">#FF0000FF</string>
 
-    <string name="brown">#FF660000</string>
-    <string name="red">#FFFF0000</string>
-    <string name="orange">#FFFF6600</string>
-    <string name="yellow">#FFFFCC00</string>
-    <string name="green">#FF009900</string>
-    <string name="light_green">#FF009999</string>
+  <string name="brown">#FF660000</string>
+  <string name="red">#FFFF0000</string>
+  <string name="orange">#FFFF6600</string>
+  <string name="yellow">#FFFFCC00</string>
+  <string name="green">#FF009900</string>
+  <string name="light_green">#FF009999</string>
+  <string name="start_drawing">Start new drawing</string>
+  <string name="view_drawings">View available drawings</string>
+  <string name="title_activity_main2">Main2Activity</string>
+  <string name="phone_gallery">Phone Gallery</string>
+  <string name="camera">Photo Camera</string>
 </resources>
