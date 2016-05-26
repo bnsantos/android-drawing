@@ -1,7 +1,9 @@
 package com.bnsantos.drawing;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -11,7 +13,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -20,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bnsantos.drawing.databinding.ActivityDrawingBinding;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,7 +37,9 @@ import java.util.Locale;
 
 @SuppressWarnings({"UnusedAssignment", "ResourceAsColor", "ResourceType"})
 public class DrawingActivity extends AppCompatActivity implements View.OnClickListener {
+  private static final int INTENT_REQUEST_STORAGE_PERMISSION = 555;
   private final String TAG = DrawingActivity.class.getSimpleName();
+  private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
   private static final String TAG_COLOR = "color";
   private static final String TAG_WIDTH = "width";
   public static final String SEPARATOR = ":";
@@ -69,8 +77,21 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
 
     if(getIntent()!=null&&getIntent().getData()!=null){
       Uri uri = getIntent().getData();
-      mBinding.drawing.setImageURI(uri);
-      //TODO uri
+
+      DisplayMetrics displaymetrics = new DisplayMetrics();
+      getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+      int height = displaymetrics.heightPixels;
+      int width = displaymetrics.widthPixels;
+
+      Picasso.with(this).setLoggingEnabled(true);
+
+      Picasso.with(this)
+          .load(uri)
+          .resize(width, height)
+          .centerInside()
+          .placeholder(R.color.blue)
+          .error(R.color.red)
+          .into(mBinding.drawing);
     }
 
     initActionBar();
@@ -96,23 +117,31 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     mBinding.toolbar.findViewById(R.id.undo).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        undo();
+        mBinding.drawing.undo();
+      }
+    });
+    mBinding.toolbar.findViewById(R.id.clear).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        mBinding.drawing.clearAll();
+      }
+    });
+    mBinding.toolbar.findViewById(R.id.redo).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        mBinding.drawing.redo();
       }
     });
     mBinding.toolbar.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        confirm();
+        if (ContextCompat.checkSelfPermission(DrawingActivity.this, PERMISSION) == PackageManager.PERMISSION_GRANTED) {
+          saveImage();
+        }else{
+          ActivityCompat.requestPermissions(DrawingActivity.this, new String[]{PERMISSION}, INTENT_REQUEST_STORAGE_PERMISSION);
+        }
       }
     });
-  }
-
-  private void confirm() {
-    saveImage();
-  }
-
-  private void undo() {
-    Toast.makeText(DrawingActivity.this, "TODO undo", Toast.LENGTH_SHORT).show();
   }
 
   private void init(){

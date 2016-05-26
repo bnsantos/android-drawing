@@ -13,10 +13,15 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by bruno on 07/01/15.
  */
 public class DrawingView extends ImageView {
+  private List<Path> mPaths;
+  private List<Path> mUndoPaths;
   private Path mPath;
   private Paint mDrawPaint, mCanvasPaint;
   private int mPaintColor;
@@ -33,6 +38,8 @@ public class DrawingView extends ImageView {
   }
 
   private void setupDrawing(){
+    mPaths = new ArrayList<>();
+    mUndoPaths = new ArrayList<>();
     mPath = new Path();
     mDrawPaint = new Paint();
 
@@ -57,7 +64,14 @@ public class DrawingView extends ImageView {
   protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
     canvas.drawBitmap(mCanvasBitmap, 0, 0, mCanvasPaint);
-    canvas.drawPath(mPath, mDrawPaint);
+    if(mPaths!=null) {
+      for (Path path : mPaths) {
+        canvas.drawPath(path, mDrawPaint);
+      }
+    }
+    if(mPath!=null){
+      canvas.drawPath(mPath, mDrawPaint);
+    }
   }
 
   @Override
@@ -66,14 +80,17 @@ public class DrawingView extends ImageView {
     float touchY = event.getY();
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
+        mPath.reset();
         mPath.moveTo(touchX, touchY);
         break;
       case MotionEvent.ACTION_MOVE:
         mPath.lineTo(touchX, touchY);
         break;
       case MotionEvent.ACTION_UP:
-        mDrawCanvas.drawPath(mPath, mDrawPaint);
-        mPath.reset();
+        //mDrawCanvas.drawPath(mPath, mDrawPaint);
+        mPaths.add(mPath);
+        mPath = new Path();
+        invalidate();
         break;
       default:
         return super.onTouchEvent(event);
@@ -103,6 +120,26 @@ public class DrawingView extends ImageView {
   public void setWidth(float width) {
     mStrokeWidth = width;
     mDrawPaint.setStrokeWidth(mStrokeWidth);
+  }
 
+  public void undo(){
+    if(mPaths!=null&&mPaths.size()>0){
+      mUndoPaths.add(mPaths.remove(mPaths.size()-1));
+      invalidate();
+    }
+  }
+
+  public void clearAll(){
+    if(mPaths!=null&&mPaths.size()>0){
+      mPaths.clear();
+      invalidate();
+    }
+  }
+
+  public void redo(){
+    if(mUndoPaths!=null&&mUndoPaths.size()>0){
+      mPaths.add(mUndoPaths.remove(mUndoPaths.size()-1));
+      invalidate();
+    }
   }
 }

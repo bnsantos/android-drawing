@@ -22,19 +22,37 @@
       android:minHeight="?attr/actionBarSize"
       android:gravity="center">
       <ImageView
+        android:id="@+id/clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/fab_margin"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_delete"
+        android:contentDescription="@string/clear_all"/>
+      <ImageView
         android:id="@+id/undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="@dimen/fab_margin"
         android:layout_gravity="center"
         android:src="@drawable/ic_undo"
         android:contentDescription="@string/undo"/>
       <ImageView
+        android:id="@+id/redo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/fab_margin"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_redo_black"
+        android:contentDescription="@string/redo"/>
+      <ImageView
         android:id="@+id/confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_gravity="right"
+        android:padding="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_gravity="right|end"
         android:src="@drawable/ic_check_black"
         android:contentDescription="@string/confirm"/>
     </android.support.v7.widget.Toolbar>

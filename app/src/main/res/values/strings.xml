@@ -28,4 +28,6 @@
   <string name="stroke_color_yellow">Stroke color yellow</string>
   <string name="stroke_color_orange">Stroke color orange</string>
   <string name="stroke_color_red">Stroke color red</string>
+  <string name="clear_all">Clear all changes</string>
+  <string name="redo">Re do change</string>
 </resources>
