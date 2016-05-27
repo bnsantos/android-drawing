@@ -22,9 +22,10 @@ import java.util.List;
  * Created by bruno on 07/01/15.
  */
 public class DrawingView extends ImageView {
-  public static final int PEN_MODE = 1;
+  public static final int PENCIL_MODE = 1;
   public static final int CIRCLE_MODE = 2;
-  public static final int SQUARE_MODE = 3;
+  public static final int RECTANGLE_MODE = 3;
+  public static final int ERASER_MODE = 4;
 
   private Paint mDrawPaint, mCanvasPaint;
   private int mPaintColor;
@@ -35,6 +36,8 @@ public class DrawingView extends ImageView {
   private Bitmap mBackgroundBitmap;
   private Bitmap mCanvasBitmap;
 
+  private int mMode = PENCIL_MODE;
+
   /*
     Drawing elements
    */
@@ -44,6 +47,8 @@ public class DrawingView extends ImageView {
 
 //  private List<>
 
+  private float circleCenterX, circleCenterY;
+  private float circleRadius;
 
 
   public DrawingView(Context context, AttributeSet attrs) {
@@ -83,6 +88,10 @@ public class DrawingView extends ImageView {
     if(mCurrentPath!=null){
       canvas.drawPath(mCurrentPath, mDrawPaint);
     }
+
+    if(circleCenterY!=0&&circleCenterY!=0&&circleRadius!=0){
+      canvas.drawCircle(circleCenterX, circleCenterY, circleRadius, mDrawPaint);
+    }
   }
 
   private void recreateCanvasBitmap(){
@@ -109,11 +118,20 @@ public class DrawingView extends ImageView {
     float touchY = event.getY();
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
-        mCurrentPath.reset();
-        mCurrentPath.moveTo(touchX, touchY);
+        if(mMode==PENCIL_MODE) {
+          mCurrentPath.reset();
+          mCurrentPath.moveTo(touchX, touchY);
+        }else if(mMode==CIRCLE_MODE){
+          circleCenterX = touchX;
+          circleCenterY = touchY;
+        }
         break;
       case MotionEvent.ACTION_MOVE:
-        mCurrentPath.lineTo(touchX, touchY);
+        if(mMode==PENCIL_MODE){
+          mCurrentPath.lineTo(touchX, touchY);
+        }else if(mMode == CIRCLE_MODE){
+          circleRadius = (float) Math.sqrt(Math.pow(circleCenterX - touchX, 2) + Math.pow(circleCenterY- touchY, 2));
+        }
         break;
       case MotionEvent.ACTION_UP:
         mPaths.add(mCurrentPath);
@@ -184,5 +202,10 @@ public class DrawingView extends ImageView {
 
     if(erase) mDrawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
     else mDrawPaint.setXfermode(null);
+  }
+
+  public void setOption(int option){
+    mMode = option;
+    //TODO check if it is a valid option
   }
 }

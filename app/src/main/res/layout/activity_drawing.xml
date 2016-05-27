@@ -8,6 +8,7 @@
     tools:context=".DrawingActivity">
 
     <com.bnsantos.drawing.DrawingView
+      android:background="@android:color/black"
       android:id="@+id/drawing"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
@@ -92,8 +93,51 @@
       android:contentDescription="@string/stroke_options"
       android:orientation="horizontal"/>
 
+    <LinearLayout
+      android:id="@+id/optionsLayout"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:layout_alignLeft="@+id/currentOption"
+      android:layout_alignStart="@+id/currentOption"
+      android:visibility="gone"
+      android:layout_above="@+id/currentOption">
+      <ImageView
+        android:id="@+id/optionsEraser"
+        android:layout_width="@dimen/option_size"
+        android:layout_height="@dimen/option_size"
+        android:layout_marginRight="14dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="23dp"
+        android:src="@drawable/ic_eraser_white"/>
+      <ImageView
+        android:id="@+id/optionRectangle"
+        android:layout_width="@dimen/option_size"
+        android:layout_height="@dimen/option_size"
+        android:layout_marginRight="14dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="23dp"
+        android:src="@drawable/ic_rectangle"/>
+      <ImageView
+        android:id="@+id/optionCircle"
+        android:layout_width="@dimen/option_size"
+        android:layout_height="@dimen/option_size"
+        android:layout_marginRight="14dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="23dp"
+        android:src="@drawable/ic_circle"/>
+      <ImageView
+        android:id="@+id/optionPencil"
+        android:layout_width="@dimen/option_size"
+        android:layout_height="@dimen/option_size"
+        android:layout_marginRight="14dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="23dp"
+        android:src="@drawable/ic_pencil"/>
+    </LinearLayout>
+
     <ImageView
-      android:id="@+id/options"
+      android:id="@+id/currentOption"
       android:layout_width="@dimen/option_size"
       android:layout_height="@dimen/option_size"
       android:layout_marginRight="14dp"

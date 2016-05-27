@@ -70,6 +70,8 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
   private int mCurrentStrokeColor = COLORS[0];
   private int mCurrentStrokeWidth = WIDTH[2];
 
+  private boolean mDrawOptionsVisible = false;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -102,6 +104,58 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
         showStrokeOptions(!mStrokeOptionsVisible);
       }
     });
+
+    mBinding.currentOption.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        showDrawOptions(!mDrawOptionsVisible);
+      }
+    });
+
+    mBinding.optionPencil.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        changeDrawOption(DrawingView.PENCIL_MODE, view);
+      }
+    });
+    mBinding.optionCircle.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        changeDrawOption(DrawingView.CIRCLE_MODE, view);
+      }
+    });
+    mBinding.optionRectangle.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        changeDrawOption(DrawingView.RECTANGLE_MODE, view);
+      }
+    });
+    mBinding.optionsEraser.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        changeDrawOption(DrawingView.ERASER_MODE, view);
+        mBinding.drawing.setOption(DrawingView.ERASER_MODE);
+      }
+    });
+  }
+
+  private void changeDrawOption(int mode, View view){
+    mBinding.drawing.setOption(mode);
+    switch (mode){
+      case DrawingView.CIRCLE_MODE:
+        mBinding.currentOption.setImageResource(R.drawable.ic_circle);
+        break;
+      case DrawingView.RECTANGLE_MODE:
+        mBinding.currentOption.setImageResource(R.drawable.ic_rectangle);
+        break;
+      case DrawingView.ERASER_MODE:
+        mBinding.currentOption.setImageResource(R.drawable.ic_eraser_white);
+        break;
+      default:
+        mBinding.currentOption.setImageResource(R.drawable.ic_pencil);
+        break;
+    }
+    showDrawOptions(false);
   }
 
   private void initActionBar() {
@@ -156,6 +210,11 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     mStrokeOptionsVisible = show;
     mBinding.strokeColors.setVisibility(show?View.VISIBLE: View.GONE);
     mBinding.strokeWidth.setVisibility(show?View.VISIBLE: View.GONE);
+  }
+
+  private void showDrawOptions(boolean show){
+    mDrawOptionsVisible = show;
+    mBinding.optionsLayout.setVisibility(show?View.VISIBLE:View.GONE);
   }
 
   @Override
