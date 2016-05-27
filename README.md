@@ -1,9 +1,14 @@
 Simple Drawing Android
 =============
 
-This simple drawing app you can draw on a white board or on top of a picture choose from galley(TODO). Also can save the edited drawing.
+This simple drawing app you can draw on top of a picture choose from galley or a new photo (TODO). Also can save the edited drawing.
 
-<img src="Screenshot_2015-02-01-15-40-13.png" alt="Screenshot" width="180px" height="360px">
+<img src="images/Screenshot_MainActivity.png" alt="Screenshot" width="180px" height="360px">
+<img src="images/Screenshot_Drawing1.png" alt="Screenshot" width="180px" height="360px">
+<img src="images/Screenshot_Drawing_Colors.png" alt="Screenshot" width="180px" height="360px">
+<img src="images/Screenshot_DrawingOptions.png" alt="Screenshot" width="180px" height="360px">
+<img src="images/Screenshot_DrawingFinal.png" alt="Screenshot" width="180px" height="360px">
+<img src="images/IMG-20160527-153021.jpg" alt="Screenshot" width="180px" height="360px">
 
 Reference
 =============
