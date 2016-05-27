@@ -8,3 +8,4 @@ This simple drawing app you can draw on a white board or on top of a picture cho
 Reference
 =============
 [Create a Drawing App on Android](http://code.tutsplus.com/series/create-a-drawing-app-on-android--cms-704)
+[Basic Painting with Views](https://github.com/codepath/android_guides/wiki/Basic-Painting-with-Views)

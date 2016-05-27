@@ -8,6 +8,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -20,15 +22,29 @@ import java.util.List;
  * Created by bruno on 07/01/15.
  */
 public class DrawingView extends ImageView {
-  private List<Path> mPaths;
-  private List<Path> mUndoPaths;
-  private Path mPath;
+  public static final int PEN_MODE = 1;
+  public static final int CIRCLE_MODE = 2;
+  public static final int SQUARE_MODE = 3;
+
   private Paint mDrawPaint, mCanvasPaint;
   private int mPaintColor;
   private float mStrokeWidth;
   private Canvas mDrawCanvas;
-  private Bitmap mCanvasBitmap;
   private boolean mErase = false;
+
+  private Bitmap mBackgroundBitmap;
+  private Bitmap mCanvasBitmap;
+
+  /*
+    Drawing elements
+   */
+  private Path mCurrentPath;
+  private List<Path> mPaths;
+  private List<Path> mUndoPaths;
+
+//  private List<>
+
+
 
   public DrawingView(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -40,7 +56,7 @@ public class DrawingView extends ImageView {
   private void setupDrawing(){
     mPaths = new ArrayList<>();
     mUndoPaths = new ArrayList<>();
-    mPath = new Path();
+    mCurrentPath = new Path();
     mDrawPaint = new Paint();
 
     mDrawPaint.setColor(mPaintColor);
@@ -64,14 +80,27 @@ public class DrawingView extends ImageView {
   protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
     canvas.drawBitmap(mCanvasBitmap, 0, 0, mCanvasPaint);
+    if(mCurrentPath!=null){
+      canvas.drawPath(mCurrentPath, mDrawPaint);
+    }
+  }
+
+  private void recreateCanvasBitmap(){
+    //TODO case when the image was not loaded in background
+    if(mBackgroundBitmap==null){
+      mBackgroundBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.RGB_565);
+      mBackgroundBitmap.eraseColor(Color.WHITE);
+    }
+    mCanvasBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+    mDrawCanvas = new Canvas(mCanvasBitmap);
+    mDrawCanvas.drawBitmap(mBackgroundBitmap, 0, 0, mCanvasPaint);
+
     if(mPaths!=null) {
       for (Path path : mPaths) {
-        canvas.drawPath(path, mDrawPaint);
+        mDrawCanvas.drawPath(path, mDrawPaint);
       }
     }
-    if(mPath!=null){
-      canvas.drawPath(mPath, mDrawPaint);
-    }
+    invalidate();
   }
 
   @Override
@@ -80,17 +109,16 @@ public class DrawingView extends ImageView {
     float touchY = event.getY();
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
-        mPath.reset();
-        mPath.moveTo(touchX, touchY);
+        mCurrentPath.reset();
+        mCurrentPath.moveTo(touchX, touchY);
         break;
       case MotionEvent.ACTION_MOVE:
-        mPath.lineTo(touchX, touchY);
+        mCurrentPath.lineTo(touchX, touchY);
         break;
       case MotionEvent.ACTION_UP:
-        //mDrawCanvas.drawPath(mPath, mDrawPaint);
-        mPaths.add(mPath);
-        mPath = new Path();
-        invalidate();
+        mPaths.add(mCurrentPath);
+        mDrawCanvas.drawPath(mCurrentPath, mDrawPaint);
+        mCurrentPath = new Path();
         break;
       default:
         return super.onTouchEvent(event);
@@ -105,18 +133,6 @@ public class DrawingView extends ImageView {
     mDrawPaint.setColor(mPaintColor);
   }
 
-  public void setErase(boolean erase){
-    mErase = erase;
-
-    if(erase) mDrawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-    else mDrawPaint.setXfermode(null);
-  }
-
-  public void newDrawing(){
-    mDrawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
-    invalidate();
-  }
-
   public void setWidth(float width) {
     mStrokeWidth = width;
     mDrawPaint.setStrokeWidth(mStrokeWidth);
@@ -125,21 +141,48 @@ public class DrawingView extends ImageView {
   public void undo(){
     if(mPaths!=null&&mPaths.size()>0){
       mUndoPaths.add(mPaths.remove(mPaths.size()-1));
-      invalidate();
+      recreateCanvasBitmap();
     }
   }
 
   public void clearAll(){
     if(mPaths!=null&&mPaths.size()>0){
       mPaths.clear();
-      invalidate();
+      recreateCanvasBitmap();
     }
   }
 
   public void redo(){
     if(mUndoPaths!=null&&mUndoPaths.size()>0){
       mPaths.add(mUndoPaths.remove(mUndoPaths.size()-1));
-      invalidate();
+      recreateCanvasBitmap();
     }
+  }
+
+  @Override
+  public void setImageDrawable(Drawable drawable) {
+    super.setImageDrawable(drawable);
+
+    if (drawable instanceof BitmapDrawable) {
+      BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+      if(bitmapDrawable.getBitmap() != null) {
+        mBackgroundBitmap = bitmapDrawable.getBitmap();
+      }
+    }
+
+    if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+    } else {
+      mBackgroundBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
+      mBackgroundBitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+    }
+
+    //TODO case when the image is not loaded..... deal with it
+  }
+
+  public void setErase(boolean erase){
+    mErase = erase;
+
+    if(erase) mDrawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+    else mDrawPaint.setXfermode(null);
   }
 }
