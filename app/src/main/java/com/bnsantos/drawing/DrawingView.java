@@ -18,9 +18,6 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by bruno on 07/01/15.
- */
 public class DrawingView extends ImageView {
   public static final int PENCIL_MODE = 1;
   public static final int CIRCLE_MODE = 2;
@@ -41,15 +38,12 @@ public class DrawingView extends ImageView {
   /*
     Drawing elements
    */
-  private Path mCurrentPath;
-  private List<Path> mPaths;
-  private List<Path> mUndoPaths;
+  private MyPath mCurrentPath;
+  private Circle mCurrentCircle;
+  private Rectangle mCurrentRectangle;
 
-//  private List<>
-
-  private float circleCenterX, circleCenterY;
-  private float circleRadius;
-
+  private List<Action> mActions;
+  private List<Action> mUndoActions;
 
   public DrawingView(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -59,9 +53,9 @@ public class DrawingView extends ImageView {
   }
 
   private void setupDrawing(){
-    mPaths = new ArrayList<>();
-    mUndoPaths = new ArrayList<>();
-    mCurrentPath = new Path();
+    mActions = new ArrayList<>();
+    mUndoActions = new ArrayList<>();
+    mCurrentPath = new MyPath();
     mDrawPaint = new Paint();
 
     mDrawPaint.setColor(mPaintColor);
@@ -89,8 +83,12 @@ public class DrawingView extends ImageView {
       canvas.drawPath(mCurrentPath, mDrawPaint);
     }
 
-    if(circleCenterY!=0&&circleCenterY!=0&&circleRadius!=0){
-      canvas.drawCircle(circleCenterX, circleCenterY, circleRadius, mDrawPaint);
+    if(mCurrentCircle!=null){
+      canvas.drawCircle(mCurrentCircle.x, mCurrentCircle.y, mCurrentCircle.radius, mDrawPaint);
+    }
+
+    if(mCurrentRectangle!=null){
+      canvas.drawRect(mCurrentRectangle.left(), mCurrentRectangle.top(), mCurrentRectangle.right(), mCurrentRectangle.bottom(), mDrawPaint);
     }
   }
 
@@ -104,9 +102,9 @@ public class DrawingView extends ImageView {
     mDrawCanvas = new Canvas(mCanvasBitmap);
     mDrawCanvas.drawBitmap(mBackgroundBitmap, 0, 0, mCanvasPaint);
 
-    if(mPaths!=null) {
-      for (Path path : mPaths) {
-        mDrawCanvas.drawPath(path, mDrawPaint);
+    if(mActions!=null) {
+      for (Action action : mActions) {
+        action.drawAction(mDrawCanvas, mDrawPaint);
       }
     }
     invalidate();
@@ -118,31 +116,72 @@ public class DrawingView extends ImageView {
     float touchY = event.getY();
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
-        if(mMode==PENCIL_MODE) {
-          mCurrentPath.reset();
-          mCurrentPath.moveTo(touchX, touchY);
-        }else if(mMode==CIRCLE_MODE){
-          circleCenterX = touchX;
-          circleCenterY = touchY;
-        }
+        onTouchDown(touchX, touchY);
         break;
       case MotionEvent.ACTION_MOVE:
-        if(mMode==PENCIL_MODE){
-          mCurrentPath.lineTo(touchX, touchY);
-        }else if(mMode == CIRCLE_MODE){
-          circleRadius = (float) Math.sqrt(Math.pow(circleCenterX - touchX, 2) + Math.pow(circleCenterY- touchY, 2));
-        }
+        onTouchMode(touchX, touchY);
         break;
       case MotionEvent.ACTION_UP:
-        mPaths.add(mCurrentPath);
-        mDrawCanvas.drawPath(mCurrentPath, mDrawPaint);
-        mCurrentPath = new Path();
+        onTouchUp();
         break;
       default:
         return super.onTouchEvent(event);
     }
     invalidate();
     return true;
+  }
+
+  private void onTouchDown(float touchX, float touchY) {
+    switch (mMode){
+      case CIRCLE_MODE:
+        mCurrentCircle = new Circle(touchX, touchY);
+        break;
+      case RECTANGLE_MODE:
+        mCurrentRectangle = new Rectangle(touchX, touchY);
+        break;
+      case ERASER_MODE:
+        break;
+      default: //PENCIL_MODE
+        mCurrentPath = new MyPath();
+        mCurrentPath.reset();
+        mCurrentPath.moveTo(touchX, touchY);
+    }
+  }
+
+  private void onTouchMode(float touchX, float touchY) {
+    switch (mMode){
+      case CIRCLE_MODE:
+        mCurrentCircle.setRadius(touchX, touchY);
+        break;
+      case RECTANGLE_MODE:
+        mCurrentRectangle.setFinalPoint(touchX, touchY);
+        break;
+      case ERASER_MODE:
+        break;
+      default: //PENCIL_MODE
+        mCurrentPath.lineTo(touchX, touchY);
+    }
+  }
+
+  private void onTouchUp() {
+    switch (mMode){
+      case CIRCLE_MODE:
+        mActions.add(mCurrentCircle);
+        mDrawCanvas.drawCircle(mCurrentCircle.x, mCurrentCircle.y, mCurrentCircle.radius, mDrawPaint);
+        mCurrentCircle = null;
+        break;
+      case RECTANGLE_MODE:
+        mActions.add(mCurrentRectangle);
+        mDrawCanvas.drawRect(mCurrentRectangle.left(), mCurrentRectangle.top(), mCurrentRectangle.right(), mCurrentRectangle.bottom(), mDrawPaint);
+        mCurrentRectangle = null;
+        break;
+      case ERASER_MODE:
+        break;
+      default: //PENCIL_MODE
+        mActions.add(mCurrentPath);
+        mDrawCanvas.drawPath(mCurrentPath, mDrawPaint);
+        mCurrentPath = null;
+    }
   }
 
   public void setColor(String newColor){
@@ -157,22 +196,25 @@ public class DrawingView extends ImageView {
   }
 
   public void undo(){
-    if(mPaths!=null&&mPaths.size()>0){
-      mUndoPaths.add(mPaths.remove(mPaths.size()-1));
+    if(mActions!=null&&mActions.size()>0){
+      mUndoActions.add(mActions.remove(mActions.size()-1));
       recreateCanvasBitmap();
     }
   }
 
   public void clearAll(){
-    if(mPaths!=null&&mPaths.size()>0){
-      mPaths.clear();
-      recreateCanvasBitmap();
+    if(mActions!=null&&mActions.size()>0){
+      mActions.clear();
     }
+    if(mUndoActions!=null&&mUndoActions.size()>0){
+      mUndoActions.clear();
+    }
+    recreateCanvasBitmap();
   }
 
   public void redo(){
-    if(mUndoPaths!=null&&mUndoPaths.size()>0){
-      mPaths.add(mUndoPaths.remove(mUndoPaths.size()-1));
+    if(mUndoActions!=null&&mUndoActions.size()>0){
+      mActions.add(mUndoActions.remove(mUndoActions.size()-1));
       recreateCanvasBitmap();
     }
   }
@@ -188,13 +230,10 @@ public class DrawingView extends ImageView {
       }
     }
 
-    if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
-    } else {
+    if(!(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0)) {
       mBackgroundBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
       mBackgroundBitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
     }
-
-    //TODO case when the image is not loaded..... deal with it
   }
 
   public void setErase(boolean erase){
@@ -206,6 +245,78 @@ public class DrawingView extends ImageView {
 
   public void setOption(int option){
     mMode = option;
-    //TODO check if it is a valid option
+    if(mMode<PENCIL_MODE||mMode>ERASER_MODE){
+      mMode = PENCIL_MODE;
+    }
+  }
+
+  private class MyPath extends Path implements  Action{
+    @Override
+    public void drawAction(Canvas canvas, Paint paint) {
+      canvas.drawPath(this, paint);
+    }
+  }
+
+  private class Circle implements Action{
+    public float x,y;
+    public float radius;
+
+    public Circle(float x, float y) {
+      this.x = x;
+      this.y = y;
+    }
+
+    public void setRadius(float currentX, float currentY) {
+      this.radius = (float) Math.sqrt(Math.pow(x - currentX, 2) + Math.pow(y- currentY, 2));
+    }
+
+    @Override
+    public void drawAction(Canvas canvas, Paint paint) {
+      canvas.drawCircle(x, y, radius, paint);
+    }
+  }
+
+  private class Rectangle implements Action{
+    public float startX;
+    public float startY;
+    public float endX;
+    public float endY;
+
+    public Rectangle(float touchX, float touchY) {
+      startX = touchX;
+      startY = touchY;
+      endX = touchX;
+      endY = touchY;
+    }
+
+    public void setFinalPoint(float touchX, float touchY) {
+      endX = touchX;
+      endY = touchY;
+    }
+
+    public float left(){
+      return (startX < endX) ? startX : endX;
+    }
+
+    public float right(){
+      return (startX < endX) ? endX : startX;
+    }
+
+    public float top(){
+      return (startY < endY) ? startY : endY;
+    }
+
+    public float bottom(){
+      return (startY < endY) ? endY : startY;
+    }
+
+    @Override
+    public void drawAction(Canvas canvas, Paint paint) {
+      canvas.drawRect(left(), top(), right(), bottom(), paint);
+    }
+  }
+
+  private interface Action{
+    void drawAction(Canvas canvas, Paint paint);
   }
 }
