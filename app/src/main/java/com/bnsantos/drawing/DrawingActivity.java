@@ -139,6 +139,13 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     });
   }
 
+  private void showAllDrawOptions(){
+    mBinding.optionPencil.setVisibility(View.VISIBLE);
+    mBinding.optionCircle.setVisibility(View.VISIBLE);
+    mBinding.optionRectangle.setVisibility(View.VISIBLE);
+    mBinding.optionsEraser.setVisibility(View.VISIBLE);
+  }
+
   private void changeDrawOption(int mode, View view){
     mBinding.drawing.setOption(mode);
     switch (mode){
@@ -155,6 +162,8 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
         mBinding.currentOption.setImageResource(R.drawable.ic_pencil);
         break;
     }
+    showAllDrawOptions();
+    view.setVisibility(View.GONE);
     showDrawOptions(false);
   }
 
@@ -164,7 +173,7 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     mBinding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        finish();
+        DrawingActivity.this.onBackPressed();
       }
     });
 
@@ -236,6 +245,7 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     updateStrokeOptionsUi();
   }
 
+  @SuppressWarnings("ForLoopReplaceableByForEach")
   private void fillColorOptions(){
     for (int i = 0; i < COLORS.length; i++) {
       ImageView colorButton = roundImageView(COLORS[i], TAG_COLOR + SEPARATOR +COLORS[i]);
@@ -244,6 +254,7 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     }
   }
 
+  @SuppressWarnings("ForLoopReplaceableByForEach")
   private void fillWidthOptions(){
     for (int i = 0; i < WIDTH.length; i++) {
       ImageView widthButton = roundImageView(R.color.black, null);
@@ -338,47 +349,4 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     }
     return mediaFolder;
   }
-
-  /*public void setDrawerBackground(View v){
-    //TODO option to select any picture from gallery, also use picasso to avoid out of memmory
-    mView.setBackgroundResource(R.drawable.monalisa);
-  }
-
-  public void paintClicked(View v){
-    if(!v.getTag().equals(mCurrentColor.getTag())){
-      mCurrentColor.setImageResource(R.drawable.paint);
-      mCurrentColor = (ImageButton) v;
-      mCurrentColor.setImageResource(R.drawable.paint_pressed);
-      mView.setColor(mCurrentColor.getTag().toString());
-    }
-  }
-
-  public void erase(View v){
-    mView.setErase(true);
-  }
-
-  public void draw(View v){
-    mView.setErase(false);
-  }
-
-  public void newDrawing(View v){
-    //TODO confirmation dialog
-    mView.newDrawing();
-  }
-
-  public void saveImage(View v){
-    mView.setDrawingCacheEnabled(true);
-    String imgSaved = MediaStore.Images.Media.insertImage(
-        getContentResolver(), mView.getDrawingCache(),
-        UUID.randomUUID().toString()+".png", "drawing");
-
-    if(imgSaved!=null){
-      Toast.makeText(getApplicationContext(), "Drawing saved to Gallery!", Toast.LENGTH_SHORT).show();
-    }
-    else{
-      Toast.makeText(getApplicationContext(), "Oops! Image could not be saved.", Toast.LENGTH_SHORT).show();
-    }
-    mView.destroyDrawingCache();
-    mView.newDrawing();
-  }*/
 }
