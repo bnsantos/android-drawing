@@ -28,7 +28,6 @@ public class DrawingView extends ImageView {
   private int mPaintColor;
   private float mStrokeWidth;
   private Canvas mDrawCanvas;
-  private boolean mErase = false;
 
   private Bitmap mBackgroundBitmap;
   private Bitmap mCanvasBitmap;
@@ -55,7 +54,7 @@ public class DrawingView extends ImageView {
   private void setupDrawing(){
     mActions = new ArrayList<>();
     mUndoActions = new ArrayList<>();
-    mCurrentPath = new MyPath();
+    mCurrentPath = new MyPath(false);
     mDrawPaint = new Paint();
 
     mDrawPaint.setColor(mPaintColor);
@@ -139,10 +138,13 @@ public class DrawingView extends ImageView {
       case RECTANGLE_MODE:
         mCurrentRectangle = new Rectangle(touchX, touchY);
         break;
-      case ERASER_MODE:
-        break;
       default: //PENCIL_MODE
-        mCurrentPath = new MyPath();
+        if(mMode==ERASER_MODE) {
+          mDrawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        } else {
+          mDrawPaint.setXfermode(null);
+        }
+        mCurrentPath = new MyPath(mMode==ERASER_MODE);
         mCurrentPath.reset();
         mCurrentPath.moveTo(touchX, touchY);
     }
@@ -155,8 +157,6 @@ public class DrawingView extends ImageView {
         break;
       case RECTANGLE_MODE:
         mCurrentRectangle.setFinalPoint(touchX, touchY);
-        break;
-      case ERASER_MODE:
         break;
       default: //PENCIL_MODE
         mCurrentPath.lineTo(touchX, touchY);
@@ -174,8 +174,6 @@ public class DrawingView extends ImageView {
         mActions.add(mCurrentRectangle);
         mDrawCanvas.drawRect(mCurrentRectangle.left(), mCurrentRectangle.top(), mCurrentRectangle.right(), mCurrentRectangle.bottom(), mDrawPaint);
         mCurrentRectangle = null;
-        break;
-      case ERASER_MODE:
         break;
       default: //PENCIL_MODE
         mActions.add(mCurrentPath);
@@ -236,13 +234,6 @@ public class DrawingView extends ImageView {
     }
   }
 
-  public void setErase(boolean erase){
-    mErase = erase;
-
-    if(erase) mDrawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-    else mDrawPaint.setXfermode(null);
-  }
-
   public void setOption(int option){
     mMode = option;
     if(mMode<PENCIL_MODE||mMode>ERASER_MODE){
@@ -251,8 +242,20 @@ public class DrawingView extends ImageView {
   }
 
   private class MyPath extends Path implements  Action{
+    public boolean erase;
+
+    public MyPath(boolean erase) {
+      super();
+      this.erase = erase;
+    }
+
     @Override
     public void drawAction(Canvas canvas, Paint paint) {
+      if(erase) {
+        mDrawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+      } else {
+        mDrawPaint.setXfermode(null);
+      }
       canvas.drawPath(this, paint);
     }
   }

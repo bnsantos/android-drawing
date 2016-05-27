@@ -85,8 +85,6 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
       int height = displaymetrics.heightPixels;
       int width = displaymetrics.widthPixels;
 
-      Picasso.with(this).setLoggingEnabled(true);
-
       Picasso.with(this)
           .load(uri)
           .resize(width, height)
