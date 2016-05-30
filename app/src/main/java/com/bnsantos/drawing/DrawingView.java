@@ -52,17 +52,17 @@ public class DrawingView extends ImageView {
   }
 
   private void setupDrawing(){
-    mActions = new ArrayList<>();
-    mUndoActions = new ArrayList<>();
-    mCurrentPath = new MyPath(false);
     mDrawPaint = new Paint();
-
     mDrawPaint.setColor(mPaintColor);
     mDrawPaint.setAntiAlias(true);
     mDrawPaint.setStrokeWidth(mStrokeWidth);
     mDrawPaint.setStyle(Paint.Style.STROKE);
     mDrawPaint.setStrokeJoin(Paint.Join.ROUND);
     mDrawPaint.setStrokeCap(Paint.Cap.ROUND);
+
+    mActions = new ArrayList<>();
+    mUndoActions = new ArrayList<>();
+    mCurrentPath = new MyPath(false, mDrawPaint);
 
     mCanvasPaint = new Paint(Paint.DITHER_FLAG);
   }
@@ -103,7 +103,7 @@ public class DrawingView extends ImageView {
 
     if(mActions!=null) {
       for (Action action : mActions) {
-        action.drawAction(mDrawCanvas, mDrawPaint);
+        action.drawAction(mDrawCanvas);
       }
     }
     invalidate();
@@ -133,10 +133,10 @@ public class DrawingView extends ImageView {
   private void onTouchDown(float touchX, float touchY) {
     switch (mMode){
       case CIRCLE_MODE:
-        mCurrentCircle = new Circle(touchX, touchY);
+        mCurrentCircle = new Circle(touchX, touchY, mDrawPaint);
         break;
       case RECTANGLE_MODE:
-        mCurrentRectangle = new Rectangle(touchX, touchY);
+        mCurrentRectangle = new Rectangle(touchX, touchY, mDrawPaint);
         break;
       default: //PENCIL_MODE
         if(mMode==ERASER_MODE) {
@@ -144,7 +144,7 @@ public class DrawingView extends ImageView {
         } else {
           mDrawPaint.setXfermode(null);
         }
-        mCurrentPath = new MyPath(mMode==ERASER_MODE);
+        mCurrentPath = new MyPath(mMode==ERASER_MODE, mDrawPaint);
         mCurrentPath.reset();
         mCurrentPath.moveTo(touchX, touchY);
     }
@@ -167,17 +167,17 @@ public class DrawingView extends ImageView {
     switch (mMode){
       case CIRCLE_MODE:
         mActions.add(mCurrentCircle);
-        mDrawCanvas.drawCircle(mCurrentCircle.x, mCurrentCircle.y, mCurrentCircle.radius, mDrawPaint);
+        mCurrentCircle.drawAction(mDrawCanvas);
         mCurrentCircle = null;
         break;
       case RECTANGLE_MODE:
         mActions.add(mCurrentRectangle);
-        mDrawCanvas.drawRect(mCurrentRectangle.left(), mCurrentRectangle.top(), mCurrentRectangle.right(), mCurrentRectangle.bottom(), mDrawPaint);
+        mCurrentRectangle.drawAction(mDrawCanvas);
         mCurrentRectangle = null;
         break;
       default: //PENCIL_MODE
         mActions.add(mCurrentPath);
-        mDrawCanvas.drawPath(mCurrentPath, mDrawPaint);
+        mCurrentPath.drawAction(mDrawCanvas);
         mCurrentPath = null;
     }
   }
@@ -243,30 +243,34 @@ public class DrawingView extends ImageView {
 
   private class MyPath extends Path implements  Action{
     public boolean erase;
+    public Paint actionPaint;
 
-    public MyPath(boolean erase) {
+    public MyPath(boolean erase, Paint paint) {
       super();
       this.erase = erase;
+      this.actionPaint = new Paint(paint);
     }
 
     @Override
-    public void drawAction(Canvas canvas, Paint paint) {
+    public void drawAction(Canvas canvas) {
       if(erase) {
         mDrawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
       } else {
         mDrawPaint.setXfermode(null);
       }
-      canvas.drawPath(this, paint);
+      canvas.drawPath(this, actionPaint);
     }
   }
 
   private class Circle implements Action{
     public float x,y;
     public float radius;
+    public Paint actionPaint;
 
-    public Circle(float x, float y) {
+    public Circle(float x, float y, Paint actionPaint) {
       this.x = x;
       this.y = y;
+      this.actionPaint = new Paint(actionPaint);
     }
 
     public void setRadius(float currentX, float currentY) {
@@ -274,8 +278,8 @@ public class DrawingView extends ImageView {
     }
 
     @Override
-    public void drawAction(Canvas canvas, Paint paint) {
-      canvas.drawCircle(x, y, radius, paint);
+    public void drawAction(Canvas canvas) {
+      canvas.drawCircle(x, y, radius, actionPaint);
     }
   }
 
@@ -284,12 +288,14 @@ public class DrawingView extends ImageView {
     public float startY;
     public float endX;
     public float endY;
+    public Paint actionPaint;
 
-    public Rectangle(float touchX, float touchY) {
+    public Rectangle(float touchX, float touchY, Paint actionPaint) {
       startX = touchX;
       startY = touchY;
       endX = touchX;
       endY = touchY;
+      this.actionPaint = new Paint(actionPaint);
     }
 
     public void setFinalPoint(float touchX, float touchY) {
@@ -314,12 +320,12 @@ public class DrawingView extends ImageView {
     }
 
     @Override
-    public void drawAction(Canvas canvas, Paint paint) {
-      canvas.drawRect(left(), top(), right(), bottom(), paint);
+    public void drawAction(Canvas canvas) {
+      canvas.drawRect(left(), top(), right(), bottom(), actionPaint);
     }
   }
 
   private interface Action{
-    void drawAction(Canvas canvas, Paint paint);
+    void drawAction(Canvas canvas);
   }
 }
