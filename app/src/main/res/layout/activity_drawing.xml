@@ -103,7 +103,7 @@
       android:visibility="gone"
       android:layout_above="@+id/currentOption">
       <ImageView
-        android:id="@+id/optionsEraser"
+        android:id="@+id/optionEraser"
         android:layout_width="@dimen/option_size"
         android:layout_height="@dimen/option_size"
         android:layout_marginRight="14dp"

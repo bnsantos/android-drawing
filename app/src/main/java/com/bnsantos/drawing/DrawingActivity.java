@@ -1,23 +1,18 @@
 package com.bnsantos.drawing;
 
 import android.Manifest;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,14 +22,6 @@ import android.widget.Toast;
 import com.bnsantos.drawing.databinding.ActivityDrawingBinding;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 @SuppressWarnings({"UnusedAssignment", "ResourceAsColor", "ResourceType"})
 public class DrawingActivity extends AppCompatActivity implements View.OnClickListener {
   private static final int INTENT_REQUEST_STORAGE_PERMISSION = 555;
@@ -43,19 +30,18 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
   private static final String TAG_COLOR = "color";
   private static final String TAG_WIDTH = "width";
   public static final String SEPARATOR = ":";
-  public static final String FILE_DATE_FORMAT = "yyyyMMdd-HHmmss";
 
   private ActivityDrawingBinding mBinding;
 
   private static final int COLORS[] = new int[]{
-    R.color.black,
-    R.color.white,
-    R.color.pink,
-    R.color.blue,
-    R.color.green,
-    R.color.orange,
-    R.color.yellow,
-    R.color.red
+    R.color.palette_black,
+    R.color.palette_white,
+    R.color.palette_pink,
+    R.color.palette_blue,
+    R.color.palette_green,
+    R.color.palette_orange,
+    R.color.palette_yellow,
+    R.color.palette_red
   };
 
   private static final int WIDTH[] = new int[]{
@@ -89,8 +75,8 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
           .load(uri)
           .resize(width, height)
           .centerInside()
-          .placeholder(R.color.blue)
-          .error(R.color.red)
+          .placeholder(R.color.palette_blue)
+          .error(R.color.palette_red)
           .into(mBinding.drawing);
     }
 
@@ -128,7 +114,7 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
         changeDrawOption(DrawingView.RECTANGLE_MODE, view);
       }
     });
-    mBinding.optionsEraser.setOnClickListener(new View.OnClickListener() {
+    mBinding.optionEraser.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         changeDrawOption(DrawingView.ERASER_MODE, view);
@@ -141,7 +127,7 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     mBinding.optionPencil.setVisibility(View.VISIBLE);
     mBinding.optionCircle.setVisibility(View.VISIBLE);
     mBinding.optionRectangle.setVisibility(View.VISIBLE);
-    mBinding.optionsEraser.setVisibility(View.VISIBLE);
+    mBinding.optionEraser.setVisibility(View.VISIBLE);
   }
 
   private void changeDrawOption(int mode, View view){
@@ -255,7 +241,7 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
   @SuppressWarnings("ForLoopReplaceableByForEach")
   private void fillWidthOptions(){
     for (int i = 0; i < WIDTH.length; i++) {
-      ImageView widthButton = roundImageView(R.color.black, null);
+      ImageView widthButton = roundImageView(R.color.palette_black, null);
 
       LinearLayout container = new LinearLayout(this);
       container.setBackgroundResource(R.drawable.stroke_options_bg);
@@ -299,52 +285,21 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     mBinding.drawing.setDrawingCacheEnabled(true);
     mBinding.drawing.invalidate();
 
-    File drawingFolder = createDrawingFolder();
-    File file = new File(drawingFolder, "IMG-" + new SimpleDateFormat(FILE_DATE_FORMAT, Locale.getDefault()).format(new Date()) + ".jpg");
-    OutputStream fOut = null;
-
-    try {
-      fOut = new FileOutputStream(file);
-    } catch (Exception e) {
-      Log.e(TAG, e.getCause() + e.getMessage());
-      Toast.makeText(DrawingActivity.this, "Error", Toast.LENGTH_SHORT).show();
-      return;
-    }
-
-
-    mBinding.drawing.getDrawingCache().compress(Bitmap.CompressFormat.JPEG, 75, fOut);
-
-    try {
-      fOut.flush();
-      fOut.close();
-    } catch (IOException e) {
-      Log.e(TAG, e.getCause() + e.getMessage());
-      Toast.makeText(DrawingActivity.this, "Error 2", Toast.LENGTH_SHORT).show();
-    }
-
-
-    ContentValues values = new ContentValues();
-
-    values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-    values.put(MediaStore.MediaColumns.DATA, file.getPath());
-
-    getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
-    finish();
-
-    Intent shareIntent = new Intent();
-    shareIntent.setAction(Intent.ACTION_VIEW);
-    shareIntent.setDataAndType(Uri.fromFile(file), "image/jpg");
-    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-    startActivity(Intent.createChooser(shareIntent, "View image"));
+    SaveImageTask task = new SaveImageTask(mBinding.drawing.getDrawingCache(), this);
+    task.execute();
   }
 
-  private File createDrawingFolder() {
-    File mediaFolder = Environment.getExternalStoragePublicDirectory("SimpleDrawing");
-    if (!mediaFolder.exists()) {
-      Log.i(TAG, "Creating [" + mediaFolder.getAbsolutePath() + "] folders " + mediaFolder.mkdirs());
+  public void imageSaved(Uri uri) {
+    if(uri!=null) {
+      finish();
+
+      Intent shareIntent = new Intent();
+      shareIntent.setAction(Intent.ACTION_VIEW);
+      shareIntent.setDataAndType(uri, "image/jpg");
+      shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+      startActivity(Intent.createChooser(shareIntent, "View image"));
+    }else{
+      Toast.makeText(DrawingActivity.this, "Error while saving image", Toast.LENGTH_SHORT).show();
     }
-    return mediaFolder;
   }
 }

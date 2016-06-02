@@ -2,14 +2,14 @@
 <resources>
   <color name="light_gray">#FFCCCCCC</color>
   <!--Palette colors-->
-  <color name="black">#FF000000</color>
-  <color name="white">#FFFFFFFF</color>
-  <color name="pink">#fd0f69</color>
-  <color name="blue">#1c81ff</color>
-  <color name="green">#00e900</color>
-  <color name="yellow">#fff603</color>
-  <color name="orange">#ff8a19</color>
-  <color name="red">#fe0000</color>
+  <color name="palette_black">#FF000000</color>
+  <color name="palette_white">#FFFFFFFF</color>
+  <color name="palette_pink">#fd0f69</color>
+  <color name="palette_blue">#1c81ff</color>
+  <color name="palette_green">#00e900</color>
+  <color name="palette_yellow">#fff603</color>
+  <color name="palette_orange">#ff8a19</color>
+  <color name="palette_red">#fe0000</color>
   <color name="gray_transparent">#40ffffff</color>
 
   <color name="transparent_yellow">#80fcbe32</color>

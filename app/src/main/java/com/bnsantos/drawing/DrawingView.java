@@ -46,7 +46,7 @@ public class DrawingView extends ImageView {
 
   public DrawingView(Context context, AttributeSet attrs) {
     super(context, attrs);
-    mPaintColor = ContextCompat.getColor(context, R.color.black);
+    mPaintColor = ContextCompat.getColor(context, R.color.palette_black);
     mStrokeWidth = (int) context.getResources().getDimension(R.dimen.m_brush);
     setupDrawing();
   }
