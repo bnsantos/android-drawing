@@ -83,7 +83,7 @@ public class DrawingView extends ImageView {
     }
 
     if(mCurrentCircle!=null){
-      canvas.drawCircle(mCurrentCircle.x, mCurrentCircle.y, mCurrentCircle.radius, mDrawPaint);
+      canvas.drawCircle(mCurrentCircle.centerX, mCurrentCircle.centerY, mCurrentCircle.radius, mDrawPaint);
     }
 
     if(mCurrentRectangle!=null){
@@ -263,23 +263,26 @@ public class DrawingView extends ImageView {
   }
 
   private class Circle implements Action{
-    public float x,y;
+    public float centerX, centerY;
+    public float startX, startY;
     public float radius;
     public Paint actionPaint;
 
     public Circle(float x, float y, Paint actionPaint) {
-      this.x = x;
-      this.y = y;
+      this.startX = x;
+      this.startY = y;
       this.actionPaint = new Paint(actionPaint);
     }
 
     public void setRadius(float currentX, float currentY) {
-      this.radius = (float) Math.sqrt(Math.pow(x - currentX, 2) + Math.pow(y- currentY, 2));
+      this.radius = (float) Math.sqrt(Math.pow(startX - currentX, 2) + Math.pow(startY- currentY, 2))/2.0f;
+      this.centerX = (this.startX + currentX)/2.0f;
+      this.centerY = (this.startY + currentY)/2.0f;
     }
 
     @Override
     public void drawAction(Canvas canvas) {
-      canvas.drawCircle(x, y, radius, actionPaint);
+      canvas.drawCircle(centerX, centerY, radius, actionPaint);
     }
   }
 
