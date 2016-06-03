@@ -83,11 +83,11 @@ public class DrawingView extends ImageView {
     }
 
     if(mCurrentCircle!=null){
-      canvas.drawCircle(mCurrentCircle.centerX, mCurrentCircle.centerY, mCurrentCircle.radius, mDrawPaint);
+      mCurrentCircle.drawAction(canvas);
     }
 
     if(mCurrentRectangle!=null){
-      canvas.drawRect(mCurrentRectangle.left(), mCurrentRectangle.top(), mCurrentRectangle.right(), mCurrentRectangle.bottom(), mDrawPaint);
+      mCurrentRectangle.drawAction(canvas);
     }
   }
 
