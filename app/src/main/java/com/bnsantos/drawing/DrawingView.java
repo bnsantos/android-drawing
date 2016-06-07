@@ -15,10 +15,12 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DrawingView extends ImageView {
+  public static final int NO_DRAWING_MODE = 0;
   public static final int PENCIL_MODE = 1;
   public static final int CIRCLE_MODE = 2;
   public static final int RECTANGLE_MODE = 3;
@@ -33,6 +35,7 @@ public class DrawingView extends ImageView {
   private Bitmap mCanvasBitmap;
 
   private int mMode = PENCIL_MODE;
+  private int mPreviousMode = PENCIL_MODE;
 
   /*
     Drawing elements
@@ -43,6 +46,8 @@ public class DrawingView extends ImageView {
 
   private List<Action> mActions;
   private List<Action> mUndoActions;
+
+  private WeakReference<DrawingViewListener> mListener;
 
   public DrawingView(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -132,6 +137,8 @@ public class DrawingView extends ImageView {
 
   private void onTouchDown(float touchX, float touchY) {
     switch (mMode){
+      case NO_DRAWING_MODE:
+        break;
       case CIRCLE_MODE:
         mCurrentCircle = new Circle(touchX, touchY, mDrawPaint);
         break;
@@ -152,6 +159,8 @@ public class DrawingView extends ImageView {
 
   private void onTouchMode(float touchX, float touchY) {
     switch (mMode){
+      case NO_DRAWING_MODE:
+        break;
       case CIRCLE_MODE:
         mCurrentCircle.setRadius(touchX, touchY);
         break;
@@ -165,6 +174,12 @@ public class DrawingView extends ImageView {
 
   private void onTouchUp() {
     switch (mMode){
+      case NO_DRAWING_MODE:
+        if(mListener!=null&&mListener.get()!=null){
+          mListener.get().click();
+        }
+        mMode = mPreviousMode;
+        break;
       case CIRCLE_MODE:
         mActions.add(mCurrentCircle);
         mCurrentCircle.drawAction(mDrawCanvas);
@@ -234,10 +249,17 @@ public class DrawingView extends ImageView {
     }
   }
 
-  public void setOption(int option){
-    mMode = option;
-    if(mMode<PENCIL_MODE||mMode>ERASER_MODE){
-      mMode = PENCIL_MODE;
+  public void setMode(int option){
+    if(option >= NO_DRAWING_MODE && option <= ERASER_MODE){
+      mPreviousMode = mMode;
+      mMode = option;
+    }
+  }
+
+  public void disableDrawing(boolean show) {
+    if(show){
+      mPreviousMode = mMode;
+      mMode = NO_DRAWING_MODE;
     }
   }
 
@@ -330,5 +352,13 @@ public class DrawingView extends ImageView {
 
   private interface Action{
     void drawAction(Canvas canvas);
+  }
+
+  public void setListener(DrawingViewListener listener) {
+    this.mListener = new WeakReference<>(listener);
+  }
+
+  public interface DrawingViewListener{
+    void click();
   }
 }

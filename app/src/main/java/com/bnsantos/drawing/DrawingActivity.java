@@ -23,7 +23,7 @@ import com.bnsantos.drawing.databinding.ActivityDrawingBinding;
 import com.squareup.picasso.Picasso;
 
 @SuppressWarnings({"UnusedAssignment", "ResourceAsColor", "ResourceType"})
-public class DrawingActivity extends AppCompatActivity implements View.OnClickListener {
+public class DrawingActivity extends AppCompatActivity implements View.OnClickListener, DrawingView.DrawingViewListener {
   private static final int INTENT_REQUEST_STORAGE_PERMISSION = 555;
   private final String TAG = DrawingActivity.class.getSimpleName();
   private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -118,9 +118,11 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
       @Override
       public void onClick(View view) {
         changeDrawOption(DrawingView.ERASER_MODE, view);
-        mBinding.drawing.setOption(DrawingView.ERASER_MODE);
+        mBinding.drawing.setMode(DrawingView.ERASER_MODE);
       }
     });
+
+    mBinding.drawing.setListener(this);
   }
 
   private void showAllDrawOptions(){
@@ -131,7 +133,7 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
   }
 
   private void changeDrawOption(int mode, View view){
-    mBinding.drawing.setOption(mode);
+    mBinding.drawing.setMode(mode);
     switch (mode){
       case DrawingView.CIRCLE_MODE:
         mBinding.currentOption.setImageResource(R.drawable.ic_circle);
@@ -203,11 +205,13 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     mStrokeOptionsVisible = show;
     mBinding.strokeColors.setVisibility(show?View.VISIBLE: View.GONE);
     mBinding.strokeWidth.setVisibility(show?View.VISIBLE: View.GONE);
+    mBinding.drawing.disableDrawing(show);
   }
 
   private void showDrawOptions(boolean show){
     mDrawOptionsVisible = show;
     mBinding.optionsLayout.setVisibility(show?View.VISIBLE:View.GONE);
+    mBinding.drawing.disableDrawing(show);
   }
 
   @Override
@@ -301,5 +305,11 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     }else{
       Toast.makeText(DrawingActivity.this, "Error while saving image", Toast.LENGTH_SHORT).show();
     }
+  }
+
+  @Override
+  public void click() {
+    showDrawOptions(false);
+    showStrokeOptions(false);
   }
 }
