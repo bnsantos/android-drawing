@@ -24,33 +24,33 @@
       android:gravity="center">
       <ImageView
         android:id="@+id/clear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/fab_margin"
+        android:layout_width="@dimen/toolbar_icon_size"
+        android:layout_height="@dimen/toolbar_icon_size"
+        android:padding="@dimen/toolbar_icon_padding"
         android:layout_gravity="center"
-        android:src="@drawable/ic_delete"
+        android:src="@drawable/ic_delete_black"
         android:contentDescription="@string/clear_all"/>
       <ImageView
         android:id="@+id/undo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/fab_margin"
+        android:layout_width="@dimen/toolbar_icon_size"
+        android:layout_height="@dimen/toolbar_icon_size"
+        android:padding="@dimen/toolbar_icon_padding"
         android:layout_gravity="center"
-        android:src="@drawable/ic_undo"
+        android:src="@drawable/ic_undo_black"
         android:contentDescription="@string/undo"/>
       <ImageView
         android:id="@+id/redo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/fab_margin"
+        android:layout_width="@dimen/toolbar_icon_size"
+        android:layout_height="@dimen/toolbar_icon_size"
+        android:padding="@dimen/toolbar_icon_padding"
         android:layout_gravity="center"
         android:src="@drawable/ic_redo_black"
         android:contentDescription="@string/redo"/>
       <ImageView
         android:id="@+id/confirm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:layout_width="@dimen/toolbar_icon_size"
+        android:layout_height="@dimen/toolbar_icon_size"
+        android:padding="@dimen/toolbar_icon_padding"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:layout_gravity="right|end"
@@ -106,34 +106,26 @@
         android:id="@+id/optionEraser"
         android:layout_width="@dimen/option_size"
         android:layout_height="@dimen/option_size"
-        android:layout_marginRight="14dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginBottom="23dp"
+        android:layout_marginBottom="@dimen/option_margin_bottom"
         android:src="@drawable/ic_eraser_white"/>
       <ImageView
         android:id="@+id/optionRectangle"
         android:layout_width="@dimen/option_size"
         android:layout_height="@dimen/option_size"
-        android:layout_marginRight="14dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginBottom="23dp"
+        android:layout_marginBottom="@dimen/option_margin_bottom"
         android:src="@drawable/ic_rectangle"/>
       <ImageView
         android:id="@+id/optionCircle"
         android:layout_width="@dimen/option_size"
         android:layout_height="@dimen/option_size"
-        android:layout_marginRight="14dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginBottom="23dp"
+        android:layout_marginBottom="@dimen/option_margin_bottom"
         android:src="@drawable/ic_circle"/>
       <ImageView
         android:id="@+id/optionPencil"
         android:layout_width="@dimen/option_size"
         android:layout_height="@dimen/option_size"
         android:visibility="gone"
-        android:layout_marginRight="14dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginBottom="23dp"
+        android:layout_marginBottom="@dimen/option_margin_bottom"
         android:src="@drawable/ic_pencil"/>
     </LinearLayout>
 
@@ -141,9 +133,7 @@
       android:id="@+id/currentOption"
       android:layout_width="@dimen/option_size"
       android:layout_height="@dimen/option_size"
-      android:layout_marginRight="14dp"
-      android:layout_marginEnd="14dp"
-      android:layout_marginBottom="23dp"
+      android:layout_marginBottom="9dp"
       android:src="@drawable/ic_pencil"
       android:layout_alignParentBottom="true"
       android:layout_alignParentRight="true"
