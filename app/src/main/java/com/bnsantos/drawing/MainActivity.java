@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bnsantos.drawing.databinding.ActivityMainBinding;
+import com.facebook.drawee.backends.pipeline.Fresco;
 
 
 public class             MainActivity extends AppCompatActivity {
@@ -23,6 +24,8 @@ public class             MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
     mBottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet);
+
+    Fresco.initialize(this);
 
     binding.start.setOnClickListener(new View.OnClickListener() {
       @Override

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -20,7 +21,14 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bnsantos.drawing.databinding.ActivityDrawingBinding;
-import com.squareup.picasso.Picasso;
+import com.facebook.common.executors.UiThreadImmediateExecutorService;
+import com.facebook.common.references.CloseableReference;
+import com.facebook.datasource.DataSource;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.datasource.BaseBitmapDataSubscriber;
+import com.facebook.imagepipeline.image.CloseableImage;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 @SuppressWarnings({"UnusedAssignment", "ResourceAsColor", "ResourceType"})
 public class DrawingActivity extends AppCompatActivity implements View.OnClickListener, DrawingView.DrawingViewListener {
@@ -71,13 +79,19 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
       int height = displaymetrics.heightPixels;
       int width = displaymetrics.widthPixels;
 
-      Picasso.with(this)
-          .load(uri)
-          .resize(width, height)
-          .centerInside()
-          .placeholder(R.color.palette_blue)
-          .error(R.color.palette_red)
-          .into(mBinding.drawing);
+      ResizeOptions resizeOptions = new ResizeOptions(width, height);
+      DataSource<CloseableReference<CloseableImage>> dataSource = Fresco.getImagePipeline().fetchDecodedImage(ImageRequestBuilder.newBuilderWithSource(uri).setResizeOptions(resizeOptions).build(), this);
+      dataSource.subscribe(new BaseBitmapDataSubscriber() {
+        @Override
+        protected void onNewResultImpl(Bitmap bitmap) {
+          mBinding.drawing.setImageBitmap(bitmap);
+        }
+
+        @Override
+        protected void onFailureImpl(DataSource<CloseableReference<CloseableImage>> dataSource) {
+          mBinding.drawing.setImageResource(R.color.palette_red);
+        }
+      }, UiThreadImmediateExecutorService.getInstance());
     }
 
     initActionBar();
