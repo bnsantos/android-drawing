@@ -140,7 +140,7 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
         mBinding.currentOption.setImageResource(R.drawable.ic_rectangle);
         break;
       case DrawingView.ERASER_MODE:
-        mBinding.currentOption.setImageResource(R.drawable.ic_eraser_white);
+        mBinding.currentOption.setImageResource(R.drawable.ic_broom_white);
         break;
       default:
         mBinding.currentOption.setImageResource(R.drawable.ic_pencil);

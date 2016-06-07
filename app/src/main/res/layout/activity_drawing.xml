@@ -106,8 +106,9 @@
         android:id="@+id/optionEraser"
         android:layout_width="@dimen/option_size"
         android:layout_height="@dimen/option_size"
+        android:padding="10dp"
         android:layout_marginBottom="@dimen/option_margin_bottom"
-        android:src="@drawable/ic_eraser_white"/>
+        android:src="@drawable/ic_broom_white"/>
       <ImageView
         android:id="@+id/optionRectangle"
         android:layout_width="@dimen/option_size"
