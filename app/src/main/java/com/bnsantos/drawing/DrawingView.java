@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DrawingView extends ImageView {
-  public static final int NO_DRAWING_MODE = 0;
   public static final int PENCIL_MODE = 1;
   public static final int CIRCLE_MODE = 2;
   public static final int RECTANGLE_MODE = 3;
@@ -35,7 +34,8 @@ public class DrawingView extends ImageView {
   private Bitmap mCanvasBitmap;
 
   private int mMode = PENCIL_MODE;
-  private int mPreviousMode = PENCIL_MODE;
+
+  private boolean mDrawingEnabled = true;
 
   /*
     Drawing elements
@@ -97,7 +97,6 @@ public class DrawingView extends ImageView {
   }
 
   private void recreateCanvasBitmap(){
-    //TODO case when the image was not loaded in background
     if(mBackgroundBitmap==null){
       mBackgroundBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.RGB_565);
       mBackgroundBitmap.eraseColor(Color.WHITE);
@@ -120,13 +119,24 @@ public class DrawingView extends ImageView {
     float touchY = event.getY();
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
-        onTouchDown(touchX, touchY);
+        if(mDrawingEnabled) {
+          onTouchDown(touchX, touchY);
+        }
         break;
       case MotionEvent.ACTION_MOVE:
-        onTouchMode(touchX, touchY);
+        if(mDrawingEnabled) {
+          onTouchMode(touchX, touchY);
+        }
         break;
       case MotionEvent.ACTION_UP:
-        onTouchUp();
+        if(mDrawingEnabled){
+          onTouchUp();
+        }else{
+          if(mListener!=null&&mListener.get()!=null){
+            mListener.get().onCanvasClick();
+          }
+          mDrawingEnabled = true;
+        }
         break;
       default:
         return super.onTouchEvent(event);
@@ -137,8 +147,6 @@ public class DrawingView extends ImageView {
 
   private void onTouchDown(float touchX, float touchY) {
     switch (mMode){
-      case NO_DRAWING_MODE:
-        break;
       case CIRCLE_MODE:
         mCurrentCircle = new Circle(touchX, touchY, mDrawPaint);
         break;
@@ -159,8 +167,6 @@ public class DrawingView extends ImageView {
 
   private void onTouchMode(float touchX, float touchY) {
     switch (mMode){
-      case NO_DRAWING_MODE:
-        break;
       case CIRCLE_MODE:
         mCurrentCircle.setRadius(touchX, touchY);
         break;
@@ -174,12 +180,6 @@ public class DrawingView extends ImageView {
 
   private void onTouchUp() {
     switch (mMode){
-      case NO_DRAWING_MODE:
-        if(mListener!=null&&mListener.get()!=null){
-          mListener.get().click();
-        }
-        mMode = mPreviousMode;
-        break;
       case CIRCLE_MODE:
         mActions.add(mCurrentCircle);
         mCurrentCircle.drawAction(mDrawCanvas);
@@ -194,6 +194,22 @@ public class DrawingView extends ImageView {
         mActions.add(mCurrentPath);
         mCurrentPath.drawAction(mDrawCanvas);
         mCurrentPath = null;
+    }
+    clearRedoList();
+    onAction();
+  }
+
+  private void clearRedoList() {
+    if(mUndoActions==null){
+      mUndoActions = new ArrayList<>();
+    }else{
+      mUndoActions.clear();
+    }
+  }
+
+  private void onAction() {
+    if(mListener!=null&&mListener.get()!=null){
+      mListener.get().onAction();
     }
   }
 
@@ -212,6 +228,7 @@ public class DrawingView extends ImageView {
     if(mActions!=null&&mActions.size()>0){
       mUndoActions.add(mActions.remove(mActions.size()-1));
       recreateCanvasBitmap();
+      onAction();
     }
   }
 
@@ -229,6 +246,7 @@ public class DrawingView extends ImageView {
     if(mUndoActions!=null&&mUndoActions.size()>0){
       mActions.add(mUndoActions.remove(mUndoActions.size()-1));
       recreateCanvasBitmap();
+      onAction();
     }
   }
 
@@ -250,17 +268,17 @@ public class DrawingView extends ImageView {
   }
 
   public void setMode(int option){
-    if(option >= NO_DRAWING_MODE && option <= ERASER_MODE){
-      mPreviousMode = mMode;
+    if(option >= PENCIL_MODE && option <= ERASER_MODE){
       mMode = option;
     }
   }
 
-  public void disableDrawing(boolean show) {
-    if(show){
-      mPreviousMode = mMode;
-      mMode = NO_DRAWING_MODE;
-    }
+  public boolean canRedo() {
+    return mUndoActions!=null&&mUndoActions.size()>0;
+  }
+
+  public boolean canUndo(){
+    return mActions!=null&&mActions.size()>0;
   }
 
   private class MyPath extends Path implements  Action{
@@ -359,6 +377,15 @@ public class DrawingView extends ImageView {
   }
 
   public interface DrawingViewListener{
-    void click();
+    void onCanvasClick();
+    void onAction();
+  }
+
+  public boolean isDirty(){
+    return (mActions!=null && mActions.size()>0);
+  }
+
+  public void setDrawingEnabled(boolean enabled) {
+    this.mDrawingEnabled = enabled;
   }
 }

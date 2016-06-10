@@ -66,6 +66,9 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
 
   private boolean mDrawOptionsVisible = false;
 
+  private View mRedo;
+  private View mUndo;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -177,7 +180,8 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
       }
     });
 
-    mBinding.toolbar.findViewById(R.id.undo).setOnClickListener(new View.OnClickListener() {
+    mUndo = mBinding.toolbar.findViewById(R.id.undo);
+    mUndo.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         mBinding.drawing.undo();
@@ -189,7 +193,8 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
         mBinding.drawing.clearAll();
       }
     });
-    mBinding.toolbar.findViewById(R.id.redo).setOnClickListener(new View.OnClickListener() {
+    mRedo = mBinding.toolbar.findViewById(R.id.redo);
+    mRedo.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         mBinding.drawing.redo();
@@ -219,13 +224,13 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
     mStrokeOptionsVisible = show;
     mBinding.strokeColors.setVisibility(show?View.VISIBLE: View.GONE);
     mBinding.strokeWidth.setVisibility(show?View.VISIBLE: View.GONE);
-    mBinding.drawing.disableDrawing(show);
+    mBinding.drawing.setDrawingEnabled(!show);
   }
 
   private void showDrawOptions(boolean show){
     mDrawOptionsVisible = show;
     mBinding.optionsLayout.setVisibility(show?View.VISIBLE:View.GONE);
-    mBinding.drawing.disableDrawing(show);
+    mBinding.drawing.setDrawingEnabled(!show);
   }
 
   @Override
@@ -322,8 +327,33 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
   }
 
   @Override
-  public void click() {
+  public void onCanvasClick() {
     showDrawOptions(false);
     showStrokeOptions(false);
+  }
+
+  private void checkUndoRedoStatus(){
+    if(mBinding.drawing.canRedo()){
+      mRedo.setVisibility(View.VISIBLE);
+    }else{
+      mRedo.setVisibility(View.INVISIBLE);
+    }
+
+    if(mBinding.drawing.canUndo()){
+      mUndo.setVisibility(View.VISIBLE);
+    }else{
+      mUndo.setVisibility(View.INVISIBLE);
+    }
+  }
+
+  @Override
+  public void onAction() {
+    checkUndoRedoStatus();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    checkUndoRedoStatus();
   }
 }
