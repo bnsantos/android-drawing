@@ -138,6 +138,12 @@ public class DrawingActivity extends AppCompatActivity implements View.OnClickLi
         mBinding.drawing.setMode(DrawingView.ERASER_MODE);
       }
     });
+    mBinding.optionText.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        mBinding.drawing.textTest();
+      }
+    });
 
     mBinding.drawing.setListener(this);
   }

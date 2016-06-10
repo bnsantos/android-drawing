@@ -4,6 +4,7 @@
   <dimen name="activity_vertical_margin">16dp</dimen>
 
   <!-- Brush sizes -->
+  <dimen name="sss_brush">1dp</dimen>
   <dimen name="ss_brush">5dp</dimen>
   <dimen name="s_brush">10dp</dimen>
   <dimen name="m_brush">15dp</dimen>
@@ -26,5 +27,7 @@
 
   <dimen name="toolbar_icon_size">48dp</dimen>
   <dimen name="toolbar_icon_padding">10dp</dimen>
+
+  <dimen name="text_size">16sp</dimen>
 
 </resources>

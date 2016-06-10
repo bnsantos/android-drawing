@@ -8,9 +8,13 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ImageView;
@@ -279,6 +283,46 @@ public class DrawingView extends ImageView {
 
   public boolean canUndo(){
     return mActions!=null&&mActions.size()>0;
+  }
+
+  public void textTest() {
+    String text = "Bacon ipsum dolor amet landjaeger pork belly leberkas sirloin, beef ribs bacon strip steak ribeye bresaola doner corned beef. Flank pork ball tip sausage jerky, pork loin alcatra landjaeger pig sirloin corned beef. Kevin jowl ground round, meatball chicken leberkas frankfurter jerky. Turducken fatback swine, tail sausage drumstick pork loin sirloin bacon doner ground round. Shank andouille bacon boudin leberkas ham hock t-bone. Meatloaf sirloin rump ham hock, tongue picanha sausage pancetta andouille jowl turkey strip steak biltong.";
+
+    Rectangle rectangle = new Rectangle(50, 300, mDrawPaint);
+    rectangle.setFinalPoint(350, 600);
+    rectangle.drawAction(mDrawCanvas);
+    mActions.add(rectangle);
+    drawRectText(text, mDrawCanvas, new Rect(50, 300, 350, 600));
+    drawText(text);
+    invalidate();
+  }
+
+  private void drawRectText(String text, Canvas canvas, Rect r) {
+    Paint textPaint = new Paint();
+
+    textPaint.setTextSize(20);
+    textPaint.setColor(mDrawPaint.getColor());
+    textPaint.setTextAlign(Paint.Align.LEFT);
+    int width = r.width();
+
+    int numOfChars = textPaint.breakText(text,true,width,null);
+    int start = (text.length()-numOfChars)/2;
+    canvas.drawText(text,start,start+numOfChars,r.exactCenterX(),r.exactCenterY(),textPaint);
+  }
+
+  private void drawText(String text){
+    TextPaint mTextPaint=new TextPaint();
+    StaticLayout mTextLayout = new StaticLayout(text, mTextPaint, mDrawCanvas.getWidth(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+
+    mDrawCanvas.save();
+// calculate x and y position where your text will be placed
+
+    float textX = 50.0f;
+    float textY = 300.0f;
+
+    mDrawCanvas.translate(textX, textY);
+    mTextLayout.draw(mDrawCanvas);
+    mDrawCanvas.restore();
   }
 
   private class MyPath extends Path implements  Action{
