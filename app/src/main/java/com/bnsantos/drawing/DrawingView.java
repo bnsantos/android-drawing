@@ -123,9 +123,13 @@ public class DrawingView extends ImageView {
     float touchY = event.getY();
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
-        if(mDrawingEnabled) {
-          onTouchDown(touchX, touchY);
+        if(!mDrawingEnabled) {
+          if(mListener!=null&&mListener.get()!=null){
+            mListener.get().onCanvasClick();
+          }
+          mDrawingEnabled = true;
         }
+        onTouchDown(touchX, touchY);
         break;
       case MotionEvent.ACTION_MOVE:
         if(mDrawingEnabled) {
